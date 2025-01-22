@@ -3,120 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Tic Tac Toe</title>
+    <title>Tic Tac Toe - Interactive</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb);
-            animation: backgroundAnimation 10s infinite alternate;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: Arial, sans-serif;
+            color: #fff;
         }
-
-        @keyframes backgroundAnimation {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
         .container {
             text-align: center;
         }
-
         h1 {
-            color: #fff;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
-            font-size: 2.5rem;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
-
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-gap: 10px;
+            justify-content: center;
             margin: 0 auto;
         }
-
         .cell {
             width: 100px;
             height: 100px;
             background: #fff;
-            border-radius: 10px;
+            color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 2rem;
             font-weight: bold;
-            color: #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: transform 0.3s, background-color 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.3s;
         }
-
         .cell:hover {
             transform: scale(1.1);
-            background-color: #f1f1f1;
+            background-color: #f0f0f0;
         }
-
-        .cell.active {
+        .cell.disabled {
             pointer-events: none;
         }
-
-        .winner {
-            color: #4caf50;
-            animation: winnerAnimation 1s infinite alternate;
-        }
-
-        @keyframes winnerAnimation {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        .btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            color: #fff;
-            background: linear-gradient(45deg, #ff5722, #ff9800);
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn:hover {
-            background: linear-gradient(45deg, #e64a19, #ff5722);
-            transform: scale(1.1);
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
         .popup {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) scale(0);
             background: #fff;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            text-align: center;
-            display: none;
-        }
-
-        .popup h2 {
-            margin: 0;
-            font-size: 1.8rem;
             color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
         }
-
-        .popup .btn {
-            margin-top: 15px;
+        .popup.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .popup h2 {
+            margin: 0 0 15px;
+        }
+        .popup button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .popup button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
@@ -134,20 +99,16 @@
             <div class="cell" data-index="7"></div>
             <div class="cell" data-index="8"></div>
         </div>
-        <button class="btn" id="reset">Restart Game</button>
+        <div class="popup" id="popup">
+            <h2 id="popupMessage">Game Over!</h2>
+            <button id="playAgain">Play Again</button>
+        </div>
     </div>
-
-    <div class="popup" id="popup">
-        <h2 id="popupMessage"></h2>
-        <button class="btn" id="popupButton">Play Again</button>
-    </div>
-
     <script>
         const board = document.getElementById('board');
-        const resetButton = document.getElementById('reset');
         const popup = document.getElementById('popup');
         const popupMessage = document.getElementById('popupMessage');
-        const popupButton = document.getElementById('popupButton');
+        const playAgainButton = document.getElementById('playAgain');
         const cells = Array.from(document.querySelectorAll('.cell'));
         let currentPlayer = 'X';
         let gameActive = true;
@@ -163,13 +124,6 @@
             [2, 4, 6]
         ];
 
-        const audio = {
-            click: new Audio('https://www.soundjay.com/button/sounds/button-09.mp3'),
-            win: new Audio('https://www.soundjay.com/button/sounds/button-4.mp3'),
-            draw: new Audio('https://www.soundjay.com/button/sounds/button-10.mp3'),
-            computer: play Audio('https://www.soundjay.com/button/sounds/button-2.mp3')
-        };
-
         function checkWin() {
             return winningCombinations.some(combination => {
                 const [a, b, c] = combination;
@@ -183,74 +137,38 @@
             return cells.every(cell => cell.textContent !== '');
         }
 
-        function showPopup(message) {
-            popupMessage.textContent = message;
-            popup.style.display = 'block';
-        }
-
-        function hidePopup() {
-            popup.style.display = 'none';
-            resetGame();
-        }
-
         function handleClick(e) {
             const cell = e.target;
-            if (cell.textContent !== '' || !gameActive) return;
+            if (!gameActive || cell.textContent !== '') return;
 
-            audio.click.play();
             cell.textContent = currentPlayer;
-            cell.classList.add('active');
+            cell.classList.add('disabled');
 
             if (checkWin()) {
                 gameActive = false;
-                audio.win.play();
-                setTimeout(() => showPopup(`${currentPlayer} wins!`), 500);
+                popupMessage.textContent = `${currentPlayer} Wins!`;
+                popup.classList.add('active');
             } else if (checkDraw()) {
                 gameActive = false;
-                audio.draw.play();
-                setTimeout(() => showPopup(`It's a draw!`), 500);
+                popupMessage.textContent = `It's a Draw!`;
+                popup.classList.add('active');
             } else {
                 currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                if (currentPlayer === 'O') playComputer();
             }
-        }
-
-        function playComputer() {
-            audio.computer.play();
-            setTimeout(() => {
-                const emptyCells = cells.filter(cell => cell.textContent === '');
-                if (emptyCells.length > 0) {
-                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                    randomCell.textContent = currentPlayer;
-                    randomCell.classList.add('active');
-
-                    if (checkWin()) {
-                        gameActive = false;
-                        audio.win.play();
-                        setTimeout(() => showPopup(`${currentPlayer} wins!`), 500);
-                    } else if (checkDraw()) {
-                        gameActive = false;
-                        audio.draw.play();
-                        setTimeout(() => showPopup(`It's a draw!`), 500);
-                    } else {
-                        currentPlayer = 'X';
-                    }
-                }
-            }, 1000);
         }
 
         function resetGame() {
             cells.forEach(cell => {
                 cell.textContent = '';
-                cell.classList.remove('active', 'winner');
+                cell.classList.remove('disabled');
             });
+            popup.classList.remove('active');
             currentPlayer = 'X';
             gameActive = true;
         }
 
         cells.forEach(cell => cell.addEventListener('click', handleClick));
-        resetButton.addEventListener('click', resetGame);
-        popupButton.addEventListener('click', hidePopup);
+        playAgainButton.addEventListener('click', resetGame);
     </script>
 </body>
 </html>
