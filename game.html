@@ -11,9 +11,15 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
             font-family: Arial, sans-serif;
             color: #fff;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb);
+            animation: backgroundAnimation 10s infinite alternate;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
         .container {
             text-align: center;
@@ -72,16 +78,25 @@
             margin: 0 0 15px;
         }
         .popup button {
-            background: #007BFF;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #0056b3);;
             color: #fff;
             border: none;
             padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background 4s ease;
+            animation: backgroundAnimation 5s infinite ;
+             transition: transform 0.2s, background-color 0.3s;
         }
         .popup button:hover {
-            background: #0056b3;
+            transform: scale(1.1);
+            background-color: #f0f0f0;
+            box-shadow: ;
+        }
+
+         @keyframes backgroundAnimation {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
     </style>
 </head>
@@ -143,6 +158,8 @@
 
             cell.textContent = currentPlayer;
             cell.classList.add('disabled');
+
+
 
             if (checkWin()) {
                 gameActive = false;
